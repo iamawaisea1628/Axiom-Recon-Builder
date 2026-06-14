@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ReconciliationTool from './pages/ReconciliationTool';
@@ -87,7 +88,12 @@ function App() {
 
   // Show Login page if not authenticated
   if (!token || !user) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <>
+        <Login onLoginSuccess={handleLoginSuccess} />
+        <Analytics />
+      </>
+    );
   }
 
   // Show App with Sidebar if authenticated
@@ -140,6 +146,7 @@ function App() {
           )}
         </div>
       </div>
+      <Analytics />
     </div>
   );
 }
