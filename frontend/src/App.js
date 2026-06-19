@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ReconciliationTool from './pages/ReconciliationTool';
@@ -140,6 +141,7 @@ function App() {
           )}
         </div>
       </div>
+      <SpeedInsights />
     </div>
   );
 }
