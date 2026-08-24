@@ -51,7 +51,7 @@ app = Flask(__name__)
 # Enable CORS for all routes
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["https://axiom-recon-ai.vercel.app", "http://localhost:3000"],
+        "origins": [origin for origin in [os.getenv("FRONTEND_URL"), "http://localhost:3000"] if origin],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
@@ -84,11 +84,14 @@ def token_required(f):
         if not payload:
             return jsonify({'error': 'Invalid or expired token'}), 401
         
-        # Pass user data to route
-        request.user = get_user(payload['user_id'])
-        if not request.user:
-            return jsonify({'error': 'User not found'}), 401
-        
+        # Supabase Auth is the identity source. Database authorization is
+        # enforced separately through organization membership and RLS.
+        request.user = {
+            'id': payload['user_id'],
+            'email': payload.get('email'),
+            'name': payload.get('name') or payload.get('email'),
+            'role': payload.get('role', 'user')
+        }
         return f(*args, **kwargs)
     
     return decorated
