@@ -1,160 +1,34 @@
-import React, { useState } from 'react';
-import { useTheme } from '../context/ThemeProvider';
+import React from 'react';
+import '../styles/LandingPage.css';
 
-export default function LandingPage({ onNavigateToLogin }) {
-  const { isDark, toggleTheme } = useTheme();
-  const [email, setEmail] = useState('');
+const Arrow = () => <span aria-hidden="true">→</span>;
+const Mark = () => <span className="ar-mark"><i/><i/><i/></span>;
 
-  return (
-    <div className={`min-h-screen ${isDark ? 'dark bg-slate-950' : 'bg-white'} transition-colors duration-300`}>
-      {/* Navigation */}
-      <nav className={`fixed w-full top-0 z-50 ${isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-white/80 border-slate-200'} backdrop-blur-md border-b transition-colors duration-300`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">🔄</span>
-            </div>
-            <span className={`text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent`}>
-              Axiom Recon
-            </span>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-lg ${isDark ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'} transition-colors`}
-            >
-              {isDark ? '☀️' : '🌙'}
-            </button>
-            <button
-              onClick={onNavigateToLogin}
-              className="px-6 py-2 rounded-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
-            >
-              Sign In
-            </button>
-          </div>
+export default function LandingPage({ onLogin, onStartTrial }) {
+  const go = onStartTrial || onLogin;
+  return <div className="public-site">
+    <header className="public-nav"><a className="public-brand" href="#top"><Mark/><span>Axiom <b>Recon Builder</b></span></a>
+      <nav><a href="#product">Product</a><a href="#solutions">Solutions</a><a href="#integrations">Integrations</a><a href="#security">Security</a><a href="#pricing">Pricing</a></nav>
+      <div className="public-actions"><button className="link-button" onClick={onLogin}>Log in</button><button className="public-btn primary small" onClick={go}>Start free <Arrow/></button></div>
+    </header>
+    <main id="top">
+      <section className="public-hero"><div className="hero-grid">
+        <div className="hero-copy"><div className="public-kicker"><i/> AI-assisted. Finance-controlled.</div><h1>Close the books.<br/><em>Not your weekend.</em></h1><p>Reconcile bank, payment, ERP, and spreadsheet data in one controlled workspace—with explainable matching, structured review, and an audit trail your team can trust.</p>
+          <div className="hero-buttons"><button className="public-btn primary" onClick={go}>Start free for 14 days <Arrow/></button><a className="public-btn outline" href="mailto:contact@axiomrecon.com">Book a demo</a></div>
+          <div className="micro"><span>✓ No credit card</span><span>✓ Setup in minutes</span><span>✓ Cancel anytime</span></div>
         </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          {/* Animated background elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className={`absolute top-20 right-10 w-72 h-72 ${isDark ? 'bg-blue-500/10' : 'bg-blue-200/30'} rounded-full mix-blend-multiply filter blur-3xl animate-pulse`}></div>
-            <div className={`absolute bottom-20 left-10 w-72 h-72 ${isDark ? 'bg-purple-500/10' : 'bg-purple-200/30'} rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000`}></div>
-          </div>
-
-          <div className="relative z-10">
-            <div className={`inline-block px-4 py-2 rounded-full ${isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-600'} mb-6 font-semibold text-sm backdrop-blur-sm border ${isDark ? 'border-blue-500/30' : 'border-blue-200'}`}>
-              ✨ AI-Powered Reconciliation Platform
-            </div>
-
-            <h1 className={`text-6xl sm:text-7xl font-black mb-6 leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Reconcile with <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">Precision</span>
-            </h1>
-
-            <p className={`text-xl ${isDark ? 'text-slate-400' : 'text-slate-600'} max-w-3xl mx-auto mb-10 leading-relaxed`}>
-              Say goodbye to manual reconciliation. Our AI-powered platform matches transactions instantly with 95%+ accuracy, saving hours of tedious work.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
-              <button
-                onClick={onNavigateToLogin}
-                className="px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 transform hover:-translate-y-1"
-              >
-                Get Started Free →
-              </button>
-              <button
-                className={`px-8 py-4 rounded-xl font-bold text-lg ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'} transition-all duration-300`}
-              >
-                Watch Demo
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
-              <div className={`p-6 rounded-lg ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'} border backdrop-blur-sm`}>
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">95%+</div>
-                <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Match Accuracy</div>
-              </div>
-              <div className={`p-6 rounded-lg ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'} border backdrop-blur-sm`}>
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">10K+</div>
-                <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Transactions/Sec</div>
-              </div>
-              <div className={`p-6 rounded-lg ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'} border backdrop-blur-sm`}>
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">99.9%</div>
-                <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Uptime SLA</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className={`py-20 px-4 ${isDark ? 'bg-slate-900/50' : 'bg-slate-50'}`}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className={`text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Powerful Features
-            </h2>
-            <p className={`text-xl ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-              Everything you need for seamless reconciliation
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: '🤖', title: 'AI-Powered Matching', desc: 'Advanced algorithms match transactions instantly with confidence scores' },
-              { icon: '📊', title: 'Real-Time Analytics', desc: 'Track match rates, confidence levels, and performance metrics live' },
-              { icon: '🎯', title: 'Custom Rules Engine', desc: 'Create rules to handle complex matching scenarios' },
-              { icon: '📁', title: 'Multiple Formats', desc: 'Import CSV, Excel, JSON, and more file formats' },
-              { icon: '📥', title: 'Export & Reports', desc: 'Download results as CSV, PDF, or Excel with detailed reports' },
-              { icon: '🔒', title: 'Enterprise Security', desc: 'Bank-level encryption and compliance with industry standards' },
-            ].map((feature, i) => (
-              <div
-                key={i}
-                className={`p-8 rounded-2xl ${isDark ? 'bg-slate-800/50 border-slate-700 hover:bg-slate-800' : 'bg-white border-slate-200 hover:bg-slate-50'} border backdrop-blur-sm transition-all duration-300 hover:shadow-lg`}
-              >
-                <div className="text-5xl mb-4">{feature.icon}</div>
-                <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                  {feature.title}
-                </h3>
-                <p className={`${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                  {feature.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className={`text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            Ready to Transform Your Reconciliation?
-          </h2>
-          <p className={`text-xl ${isDark ? 'text-slate-400' : 'text-slate-600'} mb-10`}>
-            Join thousands of companies automating their financial reconciliation today.
-          </p>
-          <button
-            onClick={onNavigateToLogin}
-            className="px-10 py-5 rounded-xl font-bold text-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 transform hover:-translate-y-1"
-          >
-            Start Free Trial Now
-          </button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className={`${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-900 border-slate-200'} border-t py-10 px-4`}>
-        <div className="max-w-7xl mx-auto text-center">
-          <p className={`${isDark ? 'text-slate-400' : 'text-slate-300'}`}>
-            © 2026 Axiom Recon. All rights reserved. | Privacy Policy | Terms of Service
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
+        <div className="product-preview"><div className="preview-bar"><Mark/><b>Operating Account</b><span>August 2026</span></div><div className="preview-body"><aside><b>Overview</b><b className="active">Reconciliations</b><b>Exceptions <i>12</i></b><b>Rules</b><b>Reports</b></aside><div className="preview-main"><div className="preview-title"><div><small>RECONCILIATION</small><h3>Operating Account</h3></div><button>Review matches</button></div><div className="stat-row"><div><small>MATCH RATE</small><strong>91.8%</strong><em>↑ 6.2%</em></div><div><small>AUTO-MATCHED</small><strong>1,284</strong><em>of 1,398</em></div><div><small>TO REVIEW</small><strong>38</strong><em>£24,612</em></div></div><div className="match-table"><b>Suggested matches</b>{[['STRIPE PAYOUT','£12,480.00','98%'],['AMZN MKTP UK','£1,248.00','94%'],['WISE TRANSFER','£4,320.00','87%']].map((r,i)=><div className="match-row" key={r[0]}><span><i className={i===2?'amber':''}/><b>{r[0]}</b><small>14 Aug 2026</small></span><strong>{r[1]}</strong><span><b>{i===0?'Settlement #908144':i===1?'Amazon Web Services':'Supplier INV-2841'}</b><small>Ledger source</small></span><em>{r[2]}</em></div>)}</div></div></div><div className="saved"><b>✓ 1,284 matches found</b><span>Estimated 9.6 hours saved</span></div></div>
+      </div></section>
+      <section className="trust"><p>Built for teams that reconcile more than spreadsheets can handle</p><div><b>QUICKBOOKS</b><b>XERO</b><b>STRIPE</b><b>SHOPIFY</b><b>NETSUITE</b><b>SAGE</b></div></section>
+      <section className="public-section" id="product"><div className="section-heading"><small>ONE CONTROLLED WORKFLOW</small><h2>From raw files to signed-off reconciliation</h2><p>Replace fragmented spreadsheets, manual checks, and back-and-forth reviews with a clear, repeatable process.</p></div><div className="workflow">{[['01','Import any source','Upload CSV or Excel from banks, ERPs, gateways, and internal ledgers. Save mappings once, then reuse them.'],['02','Match with context','Combine exact rules, tolerances, fuzzy logic, and AI suggestions. Every recommendation includes the reason.'],['03','Review and report','Resolve exceptions, assign reviewers, lock approved periods, and export an audit-ready evidence pack.']].map(x=><article key={x[0]}><span>{x[0]}</span><i>{x[0]==='01'?'↥':x[0]==='02'?'⌁':'✓'}</i><h3>{x[1]}</h3><p>{x[2]}</p></article>)}</div></section>
+      <section className="workbench-section"><div><small>THE RECONCILIATION WORKBENCH</small><h2>See both sides.<br/>Understand every match.</h2><p>A purpose-built review surface keeps transactions, confidence, explanations, and decisions in one place—without hiding judgment behind a black box.</p><ul><li>✓ One-to-one and grouped matching</li><li>✓ Confidence explained by amount, date, reference, and description</li><li>✓ Comments, assignments, and reviewer sign-off</li><li>✓ Running outstanding difference</li></ul></div><div className="rationale"><header><span>Suggested match</span><b>94% confidence</b></header><article><small>BANK · 14 AUG</small><strong>£12,480.00</strong><p>STRIPE PAYOUT 908144</p></article><div className="explain">Amount exact · Date +1 day · Reference similar</div><article><small>LEDGER · 13 AUG</small><strong>£12,480.00</strong><p>Stripe settlement #908144</p></article><footer><button>Reject</button><button>Accept match</button></footer></div></section>
+      <section className="public-section" id="solutions"><div className="section-heading"><small>BUILT FOR REAL FINANCE WORK</small><h2>Control without the clutter</h2></div><div className="feature-cards"><article><i>◎</i><h3>Explainable by design</h3><p>AI can suggest, summarize, and classify. Your team remains accountable for every financial decision.</p></article><article><i>⌘</i><h3>Exception ownership</h3><p>Assign, categorize, prioritize, and resolve outstanding items with a visible history.</p></article><article><i>◈</i><h3>Audit-ready evidence</h3><p>Capture decisions, approvals, comments, and exports in an immutable activity trail.</p></article></div></section>
+      <section className="role-section"><div className="section-heading"><small>WHO IT'S FOR</small><h2>Built around the way finance teams work</h2></div><div>{[['Accounting firms','Standardize client reconciliations and give reviewers a clear line of sight.'],['Finance teams','Accelerate month-end without compromising controls or accountability.'],['Outsourced bookkeeping','Manage recurring workspaces, exceptions, and client evidence at scale.']].map(x=><article key={x[0]}><h3>{x[0]}</h3><p>{x[1]}</p><Arrow/></article>)}</div></section>
+      <section className="integration-section" id="integrations"><small>START WITH FILES. CONNECT WHEN READY.</small><h2>Bring every financial source into view.</h2><p>Secure CSV and Excel imports work from day one. QuickBooks Online, Xero, Stripe, Shopify, Google Drive, REST API, and webhooks fit the roadmap as your workflow grows.</p><div><span>Accounting systems</span><span>Payment gateways</span><span>E-commerce</span><span>Storage & API</span></div></section>
+      <section className="security-section" id="security"><div className="shield">A<i>✓</i></div><div><small>SECURITY & CONTROL</small><h2>Financial data deserves more than a promise.</h2><p>Organization-level isolation, permission-based access, encryption, detailed audit logs, secure file handling, and controlled support access are designed into the platform—not added later.</p></div><div className="security-grid"><span>Tenant isolation</span><span>Role-based access</span><span>Encryption at rest & in transit</span><span>Immutable activity history</span></div></section>
+      <section className="public-section pricing" id="pricing"><div className="section-heading"><small>START WITHOUT THE COMPLEXITY</small><h2>Pricing that grows with the workload</h2><p>Begin with a 14-day trial. Upgrade when your transaction volume, team, or control needs grow.</p></div><div className="plans">{[['Starter','$29','For individuals and small teams.'],['Professional','$79','For growing firms and finance teams.'],['Business','$199','For larger teams and higher limits.'],['Enterprise','Custom','For high-volume or complex needs.']].map((x,i)=><article className={i===1?'popular':''} key={x[0]}>{i===1&&<b>MOST POPULAR</b>}<small>{x[0]}</small><h3>{x[1]}{x[1][0]==='$'&&<span>/month</span>}</h3><p>{x[2]}</p><button onClick={go}>{i===3?'Talk to sales':'Start free'} <Arrow/></button></article>)}</div></section>
+      <section className="closing"><small>A BETTER CLOSE STARTS HERE</small><h2>Turn reconciliation into<br/>a controlled advantage.</h2><p>Bring your first two files. We’ll help you handle the rest.</p><button className="public-btn primary" onClick={go}>Start free for 14 days <Arrow/></button></section>
+    </main>
+    <footer className="public-footer"><div><a className="public-brand" href="#top"><Mark/><span>Axiom <b>Recon Builder</b></span></a><p>AI-assisted financial reconciliation with control built in.</p></div><div><b>Product</b><a href="#product">Platform</a><a href="#integrations">Integrations</a><a href="#security">Security</a></div><div><b>Solutions</b><a href="#solutions">Accounting firms</a><a href="#solutions">Finance teams</a><a href="#solutions">Bookkeeping teams</a></div><div><b>Company</b><a href="mailto:contact@axiomrecon.com">Contact</a><a href="#pricing">Pricing</a></div><span>© 2026 Axiom Recon Builder. All rights reserved.</span></footer>
+  </div>
 }
