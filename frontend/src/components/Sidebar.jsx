@@ -6,11 +6,12 @@ export default function Sidebar({ user, currentPage, onNavigate }) {
   const [expanded, setExpanded] = useState(false);
  
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'reconciliation', label: 'Reconciliation', icon: '🔄' },
-    { id: 'history', label: 'History', icon: '📜' },
-    { id: 'rules', label: 'Rules', icon: '🎯' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: 'dashboard', label: 'Overview', icon: 'OV' },
+    { id: 'workspaces', label: 'Workspaces', icon: 'WS' },
+    { id: 'reconciliation', label: 'Reconciliations', icon: 'RC' },
+    { id: 'history', label: 'History', icon: 'HI' },
+    { id: 'rules', label: 'Rules', icon: 'RU' },
+    { id: 'settings', label: 'Settings', icon: 'ST' },
   ];
  
   return (
@@ -24,7 +25,7 @@ export default function Sidebar({ user, currentPage, onNavigate }) {
       {/* Brand */}
       <div className={`flex items-center justify-center h-20 ${isDark ? 'border-slate-800' : 'border-slate-200'} border-b`}>
         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-          <span className="text-white font-bold text-xl">🔄</span>
+          <span className="text-white font-bold text-xl">A</span>
         </div>
         {expanded && (
           <div className="ml-3">
@@ -51,7 +52,7 @@ export default function Sidebar({ user, currentPage, onNavigate }) {
             }`}
             title={item.label}
           >
-            <span className="text-xl min-w-[24px]">{item.icon}</span>
+            <span className="nav-monogram">{item.icon}</span>
             {expanded && <span className="font-semibold">{item.label}</span>}
           </button>
         ))}
