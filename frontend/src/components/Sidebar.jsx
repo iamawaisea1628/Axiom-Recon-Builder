@@ -9,6 +9,7 @@ export default function Sidebar({ user, currentPage, onNavigate }) {
     { id: 'dashboard', label: 'Overview', icon: 'OV' },
     { id: 'workspaces', label: 'Workspaces', icon: 'WS' },
     { id: 'reconciliation', label: 'Reconciliations', icon: 'RC' },
+    { id: 'exceptions', label: 'Exceptions', icon: 'EX' },
     { id: 'history', label: 'History', icon: 'HI' },
     { id: 'rules', label: 'Rules', icon: 'RU' },
     { id: 'settings', label: 'Settings', icon: 'ST' },
