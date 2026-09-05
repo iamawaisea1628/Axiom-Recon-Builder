@@ -44,6 +44,7 @@ from backend.rules_db import (
     create_rule, get_user_rules, get_rule, update_rule, delete_rule,
     toggle_rule, get_rule_statistics
 )
+from backend.saas_reconciliation import process_saas_run, get_saas_run_results, decide_saas_match
 
 load_dotenv()
 
@@ -321,6 +322,47 @@ def get_permissions():
         return jsonify({'error': str(e)}), 500
 
 # ===== MAIN ENDPOINTS =====
+
+@app.route('/api/saas/runs/<run_id>/process', methods=['POST'])
+@token_required
+def process_tenant_run(run_id):
+    """Process a staged SaaS run after explicit tenant-membership verification."""
+    try:
+        return jsonify({'status': 'success', **process_saas_run(run_id, request.user['id'])})
+    except PermissionError as exc:
+        return jsonify({'status': 'error', 'message': str(exc)}), 403
+    except ValueError as exc:
+        return jsonify({'status': 'error', 'message': str(exc)}), 400
+    except Exception as exc:
+        app.logger.exception('Tenant reconciliation processing failed')
+        return jsonify({'status': 'error', 'message': 'Processing failed. Please retry or contact support.'}), 500
+
+
+@app.route('/api/saas/runs/<run_id>/results', methods=['GET'])
+@token_required
+def tenant_run_results(run_id):
+    try:
+        return jsonify({'status': 'success', **get_saas_run_results(run_id, request.user['id'])})
+    except PermissionError as exc:
+        return jsonify({'status': 'error', 'message': str(exc)}), 403
+    except Exception:
+        app.logger.exception('Tenant reconciliation results failed')
+        return jsonify({'status': 'error', 'message': 'Unable to load reconciliation results.'}), 500
+
+
+@app.route('/api/saas/runs/<run_id>/matches/<group_id>', methods=['POST'])
+@token_required
+def tenant_match_decision(run_id, group_id):
+    try:
+        decision = (request.get_json(silent=True) or {}).get('decision')
+        return jsonify({'status': 'success', **decide_saas_match(run_id, group_id, request.user['id'], decision)})
+    except PermissionError as exc:
+        return jsonify({'status': 'error', 'message': str(exc)}), 403
+    except ValueError as exc:
+        return jsonify({'status': 'error', 'message': str(exc)}), 400
+    except Exception:
+        app.logger.exception('Tenant match decision failed')
+        return jsonify({'status': 'error', 'message': 'Unable to save match decision.'}), 500
 
 @app.route('/', methods=['GET'])
 def index():
