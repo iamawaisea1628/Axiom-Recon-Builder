@@ -22,6 +22,14 @@ def init_db():
             return False
         
         cur = conn.cursor()
+
+        # Supabase SaaS projects are provisioned through the reviewed SQL setup.
+        # Never try to overlay the incompatible integer-ID prototype schema.
+        cur.execute("SELECT to_regclass('public.organizations')")
+        if cur.fetchone()[0]:
+            conn.close()
+            print("✓ Supabase SaaS schema detected")
+            return True
         
         # Create transactions table
         cur.execute('''
