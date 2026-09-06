@@ -1,6 +1,7 @@
 import json
+import re
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from difflib import SequenceMatcher
 from psycopg2.extras import RealDictCursor
 
@@ -50,21 +51,105 @@ def score_pair(source_a, source_b):
     }
 
 
-def build_matches(source_a, source_b):
+def _as_decimal(value):
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, ValueError, TypeError):
+        return None
+
+
+def _condition_value(condition, left, right):
+    field = condition.get('field')
+    if field == 'amount':
+        return abs(Decimal(str(left['amount'])))
+    if field == 'amount_difference':
+        return abs(Decimal(str(left['amount'])) - Decimal(str(right['amount'])))
+    if field == 'date_difference':
+        left_date = date.fromisoformat(left['transaction_date']) if isinstance(left['transaction_date'], str) else left['transaction_date']
+        right_date = date.fromisoformat(right['transaction_date']) if isinstance(right['transaction_date'], str) else right['transaction_date']
+        return abs((left_date - right_date).days)
+    if field in ('account', 'vendor'):
+        values = [transaction.get('normalized_data', {}).get(field, '') for transaction in (left, right)]
+        return ' | '.join(str(value) for value in values if value)
+    if field == 'currency':
+        return f"{left.get('currency', '')} | {right.get('currency', '')}"
+    if field == 'source':
+        return 'a | b'
+    return f"{left.get(field, '')} | {right.get(field, '')}"
+
+
+def condition_matches(condition, left, right):
+    actual, expected = _condition_value(condition, left, right), condition.get('value', '')
+    operator = condition.get('operator', 'equals')
+    actual_number, expected_number = _as_decimal(actual), _as_decimal(expected)
+    if operator == 'within':
+        return actual_number is not None and expected_number is not None and abs(actual_number) <= abs(expected_number)
+    if operator == 'greater_than':
+        return actual_number is not None and expected_number is not None and actual_number > expected_number
+    if operator == 'less_than':
+        return actual_number is not None and expected_number is not None and actual_number < expected_number
+    actual_text, expected_text = _normalized(actual), _normalized(expected)
+    if operator == 'contains':
+        return bool(expected_text) and expected_text in actual_text
+    if operator == 'begins_with':
+        return bool(expected_text) and actual_text.startswith(expected_text)
+    if operator == 'regex':
+        try:
+            return len(str(expected)) <= 200 and re.search(str(expected), str(actual), flags=re.IGNORECASE) is not None
+        except re.error:
+            return False
+    if actual_number is not None and expected_number is not None:
+        return actual_number == expected_number
+    return actual_text == expected_text
+
+
+def matching_rule(rule, left, right):
+    conditions = rule.get('conditions') or {}
+    groups = conditions.get('groups') or []
+    if not groups:
+        return False
+    results = [condition_matches(condition, left, right) for condition in groups]
+    return any(results) if conditions.get('logic') == 'or' else all(results)
+
+
+def apply_rules(score, explanation, left, right, rules):
+    for rule in rules:
+        if not matching_rule(rule, left, right):
+            continue
+        actions = rule.get('actions') or {}
+        adjustment = max(-50, min(50, float(actions.get('confidence_adjustment') or 0)))
+        adjusted_score = round(max(0, min(100, score + adjustment)), 2)
+        action = actions.get('type', 'suggest')
+        require_approval = bool(actions.get('require_approval'))
+        if action == 'exclude' and not require_approval:
+            status = 'excluded'
+        else:
+            status = 'accepted' if action == 'auto_match' and not require_approval else 'suggested'
+        explanation = {**explanation, 'rule': {'id': str(rule['id']), 'name': rule['name'],
+                       'action': action, 'confidence_adjustment': adjustment,
+                       'require_approval': require_approval}}
+        return adjusted_score, explanation, status, action
+    return score, explanation, None, None
+
+
+def build_matches(source_a, source_b, rules=None):
+    rules = rules or []
     candidates = []
     for left in source_a:
         for right in source_b:
             score, explanation = score_pair(left, right)
-            if score >= SUGGEST_THRESHOLD:
-                candidates.append((score, left, right, explanation))
+            score, explanation, rule_status, rule_action = apply_rules(score, explanation, left, right, rules)
+            if score >= SUGGEST_THRESHOLD or rule_status:
+                status = rule_status or ('accepted' if score >= AUTO_ACCEPT_THRESHOLD else 'suggested')
+                candidates.append((score, left, right, explanation, status, rule_action))
     candidates.sort(key=lambda item: item[0], reverse=True)
     used_a, used_b, matches = set(), set(), []
-    for score, left, right, explanation in candidates:
+    for score, left, right, explanation, status, rule_action in candidates:
         if left['id'] in used_a or right['id'] in used_b:
             continue
         used_a.add(left['id']); used_b.add(right['id'])
         matches.append({'score': score, 'left': left, 'right': right, 'explanation': explanation,
-                        'status': 'accepted' if score >= AUTO_ACCEPT_THRESHOLD else 'suggested'})
+                        'status': status, 'rule_action': rule_action})
     return matches
 
 
@@ -99,17 +184,25 @@ def process_saas_run(run_id, user_id):
                 if total > MAX_SYNC_TRANSACTIONS:
                     raise ValueError(f'Synchronous processing is limited to {MAX_SYNC_TRANSACTIONS:,} transactions')
                 cur.execute("UPDATE public.reconciliation_runs SET status='processing', updated_at=now() WHERE id=%s", (run_id,))
-                cur.execute('''SELECT id, source_side, transaction_date, amount, description, reference, currency
+                cur.execute('''SELECT id, source_side, transaction_date, amount, description, reference, currency, normalized_data
                                FROM public.transactions WHERE run_id=%s AND organization_id=%s ORDER BY id''', (run_id, run['organization_id']))
                 transactions = cur.fetchall()
                 source_a = [x for x in transactions if x['source_side'] == 'a']
                 source_b = [x for x in transactions if x['source_side'] == 'b']
-                matches = build_matches(source_a, source_b)
+                cur.execute('''SELECT id,name,priority,conditions,actions FROM public.reconciliation_rules
+                               WHERE organization_id=%s AND status='active' AND (workspace_id IS NULL OR workspace_id=%s)
+                               ORDER BY priority,id''', (run['organization_id'], run['workspace_id']))
+                rules = cur.fetchall()
+                matches = build_matches(source_a, source_b, rules)
                 cur.execute('''DELETE FROM public.match_group_items WHERE match_group_id IN
                                (SELECT id FROM public.match_groups WHERE run_id=%s AND organization_id=%s)''', (run_id, run['organization_id']))
                 cur.execute('DELETE FROM public.match_groups WHERE run_id=%s AND organization_id=%s', (run_id, run['organization_id']))
                 cur.execute("UPDATE public.transactions SET status='unmatched' WHERE run_id=%s AND organization_id=%s", (run_id, run['organization_id']))
                 for match in matches:
+                    if match['status'] == 'excluded':
+                        cur.execute("UPDATE public.transactions SET status='excluded' WHERE id=ANY(%s)",
+                                    ([match['left']['id'], match['right']['id']],))
+                        continue
                     cur.execute('''INSERT INTO public.match_groups
                         (organization_id,run_id,match_type,confidence,status,explanation,decided_by,decided_at)
                         VALUES (%s,%s,'one_to_one',%s,%s,%s::jsonb,%s,CASE WHEN %s='accepted' THEN now() ELSE NULL END)
@@ -132,9 +225,14 @@ def process_saas_run(run_id, user_id):
                      round(avg_confidence,2), run_id))
                 cur.execute('''INSERT INTO public.audit_logs(organization_id,actor_id,action,resource_type,resource_id,after_data)
                                VALUES (%s,%s,'reconciliation.processed','run',%s,%s::jsonb)''',
-                            (run['organization_id'], user_id, str(run_id), json.dumps({'total': total, 'groups': len(matches), 'auto_matched': matched_count})))
-                return {'run_id': str(run_id), 'total_transactions': total, 'match_groups': len(matches), 'auto_matched': matched_count,
-                        'suggested': sum(1 for x in matches if x['status']=='suggested'), 'average_confidence': round(avg_confidence,2)}
+                            (run['organization_id'], user_id, str(run_id), json.dumps({'total': total,
+                             'groups': sum(1 for match in matches if match['status'] != 'excluded'),
+                             'auto_matched': matched_count, 'active_rules': len(rules),
+                             'rules_applied': sum(1 for match in matches if match['rule_action'])})))
+                return {'run_id': str(run_id), 'total_transactions': total,
+                        'match_groups': sum(1 for match in matches if match['status'] != 'excluded'), 'auto_matched': matched_count,
+                        'suggested': sum(1 for x in matches if x['status']=='suggested'), 'average_confidence': round(avg_confidence,2),
+                        'active_rules': len(rules), 'rules_applied': sum(1 for match in matches if match['rule_action'])}
     finally:
         conn.close()
 
