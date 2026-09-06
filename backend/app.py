@@ -1,6 +1,10 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
+# Keep package imports stable whether Gunicorn starts from the repository root
+# or a platform invokes this module from another working directory.
+REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from backend.groq_service import (
     analyze_unmatched_transactions,

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import API_URL from '../config.js';
+import { supabase } from '../lib/supabaseClient';
 import '../styles/Settings.css';
 
-export default function Settings({ user, token }) {
+export default function Settings({ user, onUserUpdated }) {
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -21,11 +21,18 @@ export default function Settings({ user, token }) {
   });
 
   // Preferences
-  const [preferences, setPreferences] = useState({
-    theme: localStorage.getItem('app-theme') || 'light',
-    emailNotifications: true,
-    matchAlerts: true,
-    weeklyReport: false,
+  const preferenceKey = `axiom-preferences:${user?.id || 'anonymous'}`;
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(preferenceKey)) || {
+        theme: localStorage.getItem('app-theme') || 'light',
+        emailNotifications: true,
+        matchAlerts: true,
+        weeklyReport: false,
+      };
+    } catch {
+      return { theme: 'light', emailNotifications: true, matchAlerts: true, weeklyReport: false };
+    }
   });
 
   // Apply theme on component mount and when theme preference changes
@@ -88,27 +95,15 @@ export default function Settings({ user, token }) {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ name: profileData.name })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setMessage({ type: 'error', text: data.message || 'Failed to update profile' });
-        setLoading(false);
-        return;
-      }
-
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
-      setLoading(false);
+      const name = profileData.name.trim();
+      if (name.length < 2) throw new Error('Enter your full name.');
+      const { data, error } = await supabase.auth.updateUser({ data: { full_name: name } });
+      if (error) throw error;
+      onUserUpdated?.(data.user);
+      setMessage({ type: 'success', text: 'Profile updated successfully.' });
     } catch (err) {
       setMessage({ type: 'error', text: 'Error: ' + err.message });
+    } finally {
       setLoading(false);
     }
   };
@@ -131,31 +126,20 @@ export default function Settings({ user, token }) {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/change-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          old_password: passwordData.oldPassword,
-          new_password: passwordData.newPassword
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setMessage({ type: 'error', text: data.message || 'Failed to change password' });
-        setLoading(false);
-        return;
+      if (!/[A-Z]/.test(passwordData.newPassword) || !/\d/.test(passwordData.newPassword)) {
+        throw new Error('Password must contain an uppercase letter and a number.');
       }
-
-      setMessage({ type: 'success', text: 'Password changed successfully!' });
+      const { error } = await supabase.auth.updateUser({
+        email: user.email,
+        current_password: passwordData.oldPassword,
+        password: passwordData.newPassword,
+      });
+      if (error) throw error;
+      setMessage({ type: 'success', text: 'Password changed successfully.' });
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
-      setLoading(false);
     } catch (err) {
       setMessage({ type: 'error', text: 'Error: ' + err.message });
+    } finally {
       setLoading(false);
     }
   };
@@ -165,11 +149,10 @@ export default function Settings({ user, token }) {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    // Simulate saving preferences
-    setTimeout(() => {
-      setMessage({ type: 'success', text: 'Preferences saved successfully!' });
-      setLoading(false);
-    }, 1000);
+    localStorage.setItem(preferenceKey, JSON.stringify(preferences));
+    localStorage.setItem('app-theme', preferences.theme);
+    setMessage({ type: 'success', text: 'Preferences saved for this browser.' });
+    setLoading(false);
   };
 
   return (
