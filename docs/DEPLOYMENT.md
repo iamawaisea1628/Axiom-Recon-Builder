@@ -17,6 +17,18 @@ After step 3 the verification queries should show: every listed table with `rows
 
 > If `001` stops with "Legacy Axiom transactions table detected", the project contains tables from an older prototype. Rename or drop them first, or use a fresh project.
 
+### Optional: a test account with demo data (development / staging only)
+
+Run `005_demo_test_account.sql` to get a confirmed login and a fully populated demo organization:
+
+- Email `test.user@example.com`, password `Axiom@Test2026` (both editable at the top of the script)
+- A processed January reconciliation with 13 bank + 13 ledger transactions: 3 accepted, 7 suggested, 2 excluded by a rule, 4 unmatched
+- One active rule, two exceptions and a comment, so every page has content
+
+It is safe to run twice. To reset, run `delete from public.organizations where slug = 'demo-accounting';`, delete the user under Authentication → Users, and run it again. Do not run it on a production project.
+
+To try the live import and matching flow, upload `docs/sample-data/bank_statement_jan_2026.csv` as Source A and `ledger_export_jan_2026.csv` as Source B.
+
 ## 2. Collect two values
 
 In Supabase → **Project Settings → API Keys** (or **Connect**):
@@ -56,21 +68,7 @@ Under **Authentication → Providers → Email**, enable email confirmation befo
 4. Click **Run matching**. You should land on the results page with scored matches.
 5. In Supabase **Table Editor**, confirm rows in `organizations`, `match_groups` and `audit_logs`.
 
-Sample files for step 3:
-
-```csv
-date,description,amount,reference
-2026-01-15,ABC Corp Payment,1000.00,INV-1001
-2026-01-16,Wire transfer XYZ,500.50,INV-1002
-2026-01-17,Check 4521,2500.00,
-```
-
-```csv
-date,description,amount,reference
-2026-01-15,Payment ABC Corp,1000.00,INV-1001
-2026-01-16,XYZ Co wire,500.50,INV-1002
-2026-01-18,Check payment 4521,2500.00,
-```
+Sample files for step 3 are in `docs/sample-data/` (bank statement as Source A, ledger export as Source B).
 
 ## Local development
 

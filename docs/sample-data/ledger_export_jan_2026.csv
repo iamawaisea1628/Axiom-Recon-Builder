@@ -1,0 +1,14 @@
+date,description,amount,reference
+2026-01-02,Acme Ltd payment received,125000.00,INV-2001
+2026-01-03,Payroll January,-450000.00,
+2026-01-06,K Electric utility payment,-18450.00,
+2026-01-09,Stripe settlement,98200.50,
+2026-01-10,Rent January office,-85000.00,RENT-JAN
+2026-01-12,Beta Traders invoice,54500.00,INV-2002
+2026-01-16,Cheque payment 4512,-22000.00,
+2026-01-15,Bank charges Jan,-1500.00,
+2026-01-18,Customer refund,-7500.00,
+2026-01-20,SaaS subscription,-3000.00,
+2026-01-20,SaaS subscription,-3000.00,
+2026-01-28,Prepaid insurance accrual,-12000.00,
+2026-01-27,Delta Co,76000.00,INV-2005

@@ -35,7 +35,7 @@ Browser (React)
 
 Full step-by-step instructions are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). In short:
 
-1. Create a **dedicated** Supabase project and run the four files in `database/sql/` in order (`001` → `004`) in the SQL Editor.
+1. Create a **dedicated** Supabase project and run the four files in `database/sql/` in order (`001` → `004`) in the SQL Editor. For a ready-made test login with demo data, also run `005_demo_test_account.sql` (development only).
 2. Import this repository into Vercel (framework: Create React App — detected automatically).
 3. Add two environment variables in Vercel: `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_PUBLISHABLE_KEY`.
 4. Set Supabase → Authentication → URL Configuration to your Vercel URL, then deploy.
@@ -80,6 +80,7 @@ Scores ≥ 60 become suggestions; everything else stays unmatched.
 ```bash
 npm test          # matching engine + API handler (Node's built-in test runner, no dependencies)
 npm run test:sql  # migrations + RPC behaviour on a scratch PostgreSQL database (needs a local Postgres superuser)
+bash tests/sql/seed.test.sh   # the demo seed: idempotent, and identical to the real engine's output
 ```
 
 `npm test` needs no network and no database. `npm run test:sql` uses a small stand-in for Supabase's `auth` schema
@@ -92,6 +93,7 @@ api/
   process-run.js         Vercel function: loads a run, runs the matcher, saves results via RPC
   _lib/matching.js       Pure matching engine and rules evaluator
 database/sql/            001 schema · 002 RLS + onboarding · 003 plans + checks · 004 processing RPCs
+                         005 demo test account + sample data (development only)
 src/
   pages/                 Landing, Login, Onboarding, Dashboard, Workspaces, Reconciliation (import),
                          Results (review), Exceptions, History, Rules, Settings
@@ -99,6 +101,7 @@ src/
   lib/supabaseClient.js  Supabase client + readable configuration error
 tests/                   Node tests (engine, handler) and SQL tests
 docs/DEPLOYMENT.md       Step-by-step setup
+docs/sample-data/        Two small CSV files (bank + ledger) for trying the import and matching
 ```
 
 ## Limits and notes
