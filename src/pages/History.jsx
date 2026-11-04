@@ -1,0 +1,28 @@
+import React,{useCallback,useEffect,useMemo,useState} from 'react';
+import {supabase} from '../lib/supabaseClient';
+import '../styles/History.css';
+
+const PAGE_SIZE=15;
+const nice=value=>String(value||'').replaceAll('_',' ').replace(/\b\w/g,letter=>letter.toUpperCase());
+const money=(value,currency='USD')=>new Intl.NumberFormat(undefined,{style:'currency',currency:currency||'USD'}).format(Number(value||0));
+const pct=run=>run.total_transactions?Number(run.matched_transactions||0)/Number(run.total_transactions)*100:0;
+
+export default function History({organization,onNavigate,onOpenRun}){
+ const [runs,setRuns]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[search,setSearch]=useState(''),[status,setStatus]=useState('all'),[page,setPage]=useState(1);
+ const load=useCallback(async()=>{if(!organization?.id)return;setLoading(true);setError('');const {data,error}=await supabase.from('reconciliation_runs').select('id,name,period_start,period_end,status,source_a_balance,source_b_balance,outstanding_difference,total_transactions,matched_transactions,average_confidence,created_at,updated_at,workspace:workspaces(name,base_currency)').eq('organization_id',organization.id).order('created_at',{ascending:false});if(error)setError(error.message);else setRuns(data||[]);setLoading(false)},[organization]);
+ useEffect(()=>{load()},[load]);
+ useEffect(()=>setPage(1),[search,status]);
+ const filtered=useMemo(()=>runs.filter(run=>(status==='all'||run.status===status)&&run.name.toLowerCase().includes(search.trim().toLowerCase())),[runs,search,status]);
+ const pages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE)),visible=filtered.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE);
+ const prepared=runs.filter(run=>['prepared','in_review','approved'].includes(run.status)),average=prepared.length?prepared.reduce((sum,run)=>sum+pct(run),0)/prepared.length:0,outstanding=runs.reduce((sum,run)=>sum+Math.abs(Number(run.outstanding_difference||0)),0);
+ if(loading)return <div className="history-loading"><div className="loading-spinner"/><p>Loading reconciliation history…</p></div>;
+ return <main className="history-container">
+  <section className="history-header"><div><small>RECONCILIATION CONTROL</small><h2>Run history</h2><p>Review every period, outcome, and outstanding difference for {organization?.name}.</p></div><button className="history-primary" onClick={()=>onNavigate('reconciliation')}>New reconciliation</button></section>
+  {error&&<div className="error-banner"><b>History unavailable.</b><span>{error}</span><button onClick={load}>Retry</button></div>}
+  <section className="history-kpis"><article><small>Total runs</small><b>{runs.length.toLocaleString()}</b></article><article><small>Prepared or approved</small><b>{prepared.length.toLocaleString()}</b></article><article><small>Average match rate</small><b>{average.toFixed(1)}%</b></article><article className={outstanding?'warning':'good'}><small>Absolute open difference</small><b>{money(outstanding,organization?.base_currency)}</b></article></section>
+  <section className="history-table-card"><header><div><small>ALL PERIODS</small><h3>Reconciliation runs</h3></div><div className="history-controls"><label><span>Search</span><input value={search} onChange={event=>setSearch(event.target.value)} placeholder="Run or period name"/></label><label><span>Status</span><select value={status} onChange={event=>setStatus(event.target.value)}><option value="all">All statuses</option>{['draft','processing','prepared','in_review','approved','returned','failed','cancelled'].map(value=><option key={value} value={value}>{nice(value)}</option>)}</select></label></div></header>
+   {visible.length?<div className="history-table-wrap"><table><thead><tr><th>Run</th><th>Workspace</th><th>Period</th><th>Status</th><th className="numeric">Transactions</th><th className="numeric">Match rate</th><th className="numeric">Difference</th><th>Updated</th><th/></tr></thead><tbody>{visible.map(run=>{const currency=run.workspace?.base_currency||organization?.base_currency;return <tr key={run.id}><td><b>{run.name}</b><small>{run.id.slice(0,8).toUpperCase()}</small></td><td>{run.workspace?.name||'—'}</td><td>{run.period_start||'—'}<small>to {run.period_end||'—'}</small></td><td><span className={`history-status ${run.status}`}>{nice(run.status)}</span></td><td className="numeric">{Number(run.total_transactions||0).toLocaleString()}</td><td className="numeric"><b>{pct(run).toFixed(1)}%</b><span className="rate-track"><i style={{width:`${Math.min(pct(run),100)}%`}}/></span></td><td className={`numeric ${Number(run.outstanding_difference)?'difference':''}`}>{money(run.outstanding_difference,currency)}</td><td>{new Date(run.updated_at||run.created_at).toLocaleDateString()}</td><td><button className="history-view" disabled={run.status==='draft'||run.status==='processing'} onClick={()=>onOpenRun(run.id)}>Open results</button></td></tr>})}</tbody></table></div>:<div className="history-empty"><i>RC</i><b>{runs.length?'No runs match these filters':'No reconciliation runs yet'}</b><span>{runs.length?'Change the search or status filter.':'Import two financial sources to create your first controlled reconciliation.'}</span>{!runs.length&&<button onClick={()=>onNavigate('reconciliation')}>Start reconciliation</button>}</div>}
+   {filtered.length>PAGE_SIZE&&<footer><span>Showing {(page-1)*PAGE_SIZE+1}–{Math.min(page*PAGE_SIZE,filtered.length)} of {filtered.length}</span><div><button disabled={page===1} onClick={()=>setPage(value=>value-1)}>Previous</button><b>{page} / {pages}</b><button disabled={page===pages} onClick={()=>setPage(value=>value+1)}>Next</button></div></footer>}
+  </section>
+ </main>
+}
