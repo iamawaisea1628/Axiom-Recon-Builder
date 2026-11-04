@@ -13,5 +13,17 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <script>
+      // Safety net: if the app fails before React can render, show the error instead of a blank page.
+      window.addEventListener('error', function (e) {
+        var root = document.getElementById('root');
+        if (root && !root.childElementCount) {
+          var pre = document.createElement('pre');
+          pre.style.cssText = 'white-space:pre-wrap;font:13px system-ui,sans-serif;padding:24px;max-width:640px;margin:10vh auto;color:#10243a';
+          pre.textContent = 'Axiom Recon Builder failed to start.\n\n' + (e.message || 'Unknown error');
+          root.appendChild(pre);
+        }
+      });
+    </script>
   </body>
 </html>
