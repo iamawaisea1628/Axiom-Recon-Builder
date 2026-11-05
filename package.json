@@ -3,8 +3,12 @@
   "version": "2.0.0",
   "private": true,
   "description": "Explainable bank and ledger reconciliation for finance teams (React + Vercel + Supabase).",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.0.0",
+    "@fontsource/source-serif-4": "^5.0.0",
     "@supabase/supabase-js": "2.95.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -17,9 +21,21 @@
     "test": "node --test",
     "test:sql": "bash tests/sql/run.sh"
   },
-  "eslintConfig": { "extends": ["react-app"] },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

@@ -5,7 +5,7 @@
 .header-divider{height:22px;width:1px;background:var(--rule);margin:0 20px}
 .app-header h1{margin:0;font:600 15px/1.2 var(--font-sans);color:var(--ink-2);letter-spacing:0}
 .header-org{display:flex;align-items:center;gap:9px;margin-left:20px;padding-left:20px;border-left:1px solid var(--rule);color:var(--ink-2);font-size:13.5px}
-.header-org small{background:var(--ledger-100);color:var(--ledger-700);border-radius:4px;padding:2px 7px;font-size:11.5px;font-weight:600;letter-spacing:.02em}
+.header-org small{background:var(--ledger-100);color:var(--ledger-700);border-radius:4px;padding:2px 7px;font-size:12.5px;font-weight:600;letter-spacing:.02em}
 .header-spacer{flex:1}
 .app-main{display:flex;padding-top:64px}
 .app-content{flex:1;min-width:0;padding:32px 40px 64px 112px}
