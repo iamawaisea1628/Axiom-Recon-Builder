@@ -163,19 +163,19 @@ export default function Settings({ user, onUserUpdated }) {
           className={`settings-tab ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => setActiveTab('profile')}
         >
-          👤 Profile
+          Profile
         </button>
         <button
           className={`settings-tab ${activeTab === 'password' ? 'active' : ''}`}
           onClick={() => setActiveTab('password')}
         >
-          🔐 Security
+          Security
         </button>
         <button
           className={`settings-tab ${activeTab === 'preferences' ? 'active' : ''}`}
           onClick={() => setActiveTab('preferences')}
         >
-          ⚙️ Preferences
+          Preferences
         </button>
       </div>
 
@@ -190,7 +190,7 @@ export default function Settings({ user, onUserUpdated }) {
       {activeTab === 'profile' && (
         <div className="settings-section">
           <div className="section-header">
-            <h2>👤 Profile Settings</h2>
+            <h2>Profile Settings</h2>
             <p>Manage your account information</p>
           </div>
 
@@ -235,7 +235,7 @@ export default function Settings({ user, onUserUpdated }) {
 
             <div className="form-actions">
               <button type="submit" disabled={loading} className="btn btn-primary">
-                {loading ? 'Saving...' : '💾 Save Changes'}
+                {loading ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </form>
@@ -246,7 +246,7 @@ export default function Settings({ user, onUserUpdated }) {
       {activeTab === 'password' && (
         <div className="settings-section">
           <div className="section-header">
-            <h2>🔐 Security Settings</h2>
+            <h2>Security Settings</h2>
             <p>Manage your password and security</p>
           </div>
 
@@ -312,7 +312,7 @@ export default function Settings({ user, onUserUpdated }) {
       {activeTab === 'preferences' && (
         <div className="settings-section">
           <div className="section-header">
-            <h2>⚙️ Preferences</h2>
+            <h2>Preferences</h2>
             <p>Customize your experience</p>
           </div>
 
@@ -384,7 +384,7 @@ export default function Settings({ user, onUserUpdated }) {
 
             <div className="form-actions">
               <button type="submit" disabled={loading} className="btn btn-primary">
-                {loading ? 'Saving...' : '💾 Save Preferences'}
+                {loading ? 'Saving...' : 'Save Preferences'}
               </button>
             </div>
           </form>

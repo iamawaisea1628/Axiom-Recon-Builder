@@ -147,7 +147,7 @@ export default function ReconciliationResults({ runId, membership, onNavigate })
 
       <section className="workbench">
         <header>
-          <div><small>REVIEW WORKBENCH</small><h3>Candidate matches</h3></div>
+          <div><h3>Candidate matches</h3></div>
           <span>{groups.length} groups shown</span>
         </header>
         <nav>
@@ -219,7 +219,7 @@ export default function ReconciliationResults({ runId, membership, onNavigate })
 
       <section className="unmatched">
         <header>
-          <div><small>OPEN ITEMS</small><h3>Unmatched transactions</h3></div>
+          <div><h3>Unmatched transactions</h3></div>
           <b>{number(unmatchedTotal)}</b>
         </header>
         <div className="unmatched-table">

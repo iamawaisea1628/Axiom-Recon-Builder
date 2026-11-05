@@ -8,10 +8,10 @@
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius:10px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: inherit;
@@ -33,7 +33,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #5B5FDE 0%, #10B981 100%);
+  background: #294339;
   color: white;
   display: flex;
   align-items: center;
@@ -54,7 +54,7 @@
 .profile-name {
   font-size: 14px;
   font-weight: 700;
-  color: white;
+  color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -62,12 +62,12 @@
 
 .profile-role {
   font-size: 12px;
-  color: #D1D5DB;
+  color: var(--ink-3);
 }
 
 /* ===== CHEVRON ICON ===== */
 .profile-chevron {
-  color: #D1D5DB;
+  color: #d4d8d6;
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
@@ -83,8 +83,8 @@
   right: 0;
   margin-top: 8px;
   background: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
+  border: 1px solid #e7e9e8;
+  border-radius:10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 200px;
   overflow: hidden;
@@ -112,7 +112,7 @@
   padding: 12px 16px;
   background: transparent;
   border: none;
-  color: #1F2937;
+  color: #25312b;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -122,7 +122,7 @@
 }
 
 .dropdown-item:hover {
-  background-color: #F3F4F6;
+  background-color: #f4f5f4;
 }
 
 .dropdown-item span {
@@ -132,17 +132,17 @@
 
 /* ===== LOGOUT ITEM (RED) ===== */
 .dropdown-item.logout-item {
-  color: #DC2626;
+  color: #c34d3f;
 }
 
 .dropdown-item.logout-item:hover {
-  background-color: #FEE2E2;
+  background-color: #fae8e6;
 }
 
 /* ===== DIVIDER ===== */
 .dropdown-divider {
   height: 1px;
-  background: #E5E7EB;
+  background: #e7e9e8;
   margin: 4px 0;
 }
 

@@ -1,1 +1,26 @@
+:root{
+  --font-sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-serif:"Source Serif 4","Source Serif Pro",Georgia,"Times New Roman",serif;
 
+  --ledger-900:#10291f; --ledger-800:#143328; --ledger-700:#1f4d3e; --ledger-600:#2b6652;
+  --ledger-200:#c9dbd1; --ledger-100:#e3ece7; --ledger-50:#eef3ef;
+  --brass:#b38b3a; --brass-soft:#d6b66b;
+
+  --paper:#f3f5f1; --surface:#ffffff; --rule:#dde3dc; --rule-strong:#c6cfc7;
+  --ink:#1c2722; --ink-2:#44524b; --ink-3:#66746d;
+
+  --oxblood:#9c3a2e; --oxblood-bg:#f6e4e0;
+  --marker-bg:#f5e9c4; --marker-ink:#6f510e;
+  --steel:#34607f; --steel-bg:#e6eef4;
+
+  --radius-control:6px; --radius-panel:10px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:14.5px;line-height:1.5;-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
+h1,h2,h3{font-family:var(--font-serif);font-weight:600;letter-spacing:-.005em}
+button,input,select,textarea{font-family:inherit}
+table{font-variant-numeric:tabular-nums lining-nums}
+::selection{background:var(--ledger-200)}
+:focus-visible{outline:2px solid var(--ledger-600);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
